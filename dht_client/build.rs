@@ -1,5 +1,5 @@
 fn main(){
-    println!("cargo:rustc-link-search=/home/develop/rust_workspace/dht_client/");
+    println!("cargo:rustc-link-search=/home/develop/temperature-humidity-monitor/dht_client/");
 
     let mut prost_build = prost_build::Config::new();
     prost_build.btree_map(&["."]);
