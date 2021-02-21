@@ -1,0 +1,8 @@
+sensor-type: DHT22
+pin-number: 4
+device-id: "1"
+broker-address: tcp://192.168.2.160:1883
+client-id: dht_sensor_1
+password: test123
+mqtt-topic: dht/temperature_humidity
+mqtt-qos: 0

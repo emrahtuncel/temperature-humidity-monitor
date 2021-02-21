@@ -1,0 +1,2 @@
+# build binary
+make all

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package main;
+
+import "google/protobuf/timestamp.proto";
+
+message SensorData {
+    string device_id = 1;
+    google.protobuf.Timestamp measurement_time = 2;
+    float temperature = 3;
+    float humidity = 4;
+}
