@@ -8,7 +8,6 @@ Before you begin, ensure you have the following installed:
 
 *   **Docker:** To build and run the Docker containers.
 *   **Docker Compose:** To manage the multi-container Docker applications.
-*   **A C compiler:** For compiling the `dht_driver`. The `docker-raspberry-build-env` container includes a cross-compiler for the Raspberry Pi.
 
 ## Submodules
 
