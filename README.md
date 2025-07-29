@@ -2,6 +2,14 @@
 
 This project is a simple solution for monitoring temperature and humidity data using a Raspberry Pi. It consists of a sensor client, an IoT server, and a set of Docker containers for the necessary services.
 
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+*   **Docker:** To build and run the Docker containers.
+*   **Docker Compose:** To manage the multi-container Docker applications.
+*   **A C compiler:** For compiling the `dht_driver`. The `docker-raspberry-build-env` container includes a cross-compiler for the Raspberry Pi.
+
 ## Submodules
 
 The project is divided into the following submodules:
