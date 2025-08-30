@@ -9,16 +9,16 @@ edition = "2018"
 build = "build.rs"
 
 [dependencies]
-const_format = "0.2.13"
-chrono = "0.4.19"
-prost = "0.7"
-prost-types = "0.7"
-serde_yaml = "0.8.17"
+const_format = "0.2.34"
+chrono = "0.4.41"
+prost = "0.14.1"
+prost-types = "0.14.1"
+serde_yaml = "0.9.34+deprecated"
 
 [build-dependencies]
-prost-build = "0.7"
+prost-build = "0.14.1"
 
 [dependencies.paho-mqtt]
-version = "0.9.1"
+version = "0.13.3"
 default-features = false
 features = ["bundled"]

@@ -1,18 +1,11 @@
-FROM debian:stretch-slim
-LABEL maintainer="Phil Hawthorne <me@philhawthorne.com>"
+FROM debian:bookworm-slim
+LABEL maintainer="Emrah Tuncel <etuncel88@gmail.com>"
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV LANG C.UTF-8
 
-# Default versions
-ENV INFLUXDB_VERSION=2.0.3
-ENV GRAFANA_VERSION=7.4.2
-
 # Grafana database type
 ENV GF_DATABASE_TYPE=sqlite3
-
-# Fix bad proxy issue
-COPY system/99fixbadproxy /etc/apt/apt.conf.d/99fixbadproxy
 
 WORKDIR /root
 
@@ -41,18 +34,20 @@ RUN ARCH= && dpkgArch="$(dpkg --print-architecture)" && \
         supervisor \
         wget \
         gnupg \
-    && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-    && apt-get install -y nodejs \
+        apt-transport-https \
+        software-properties-common \
     && mkdir -p /var/log/supervisor \
     && rm -rf .profile \
     # Install InfluxDB
-    && wget --no-verbose https://dl.influxdata.com/influxdb/releases/influxdb2_${INFLUXDB_VERSION}_${ARCH}.deb \
-    && dpkg -i influxdb2_${INFLUXDB_VERSION}_${ARCH}.deb \
-    && rm influxdb2_${INFLUXDB_VERSION}_${ARCH}.deb \
+    && wget -q https://repos.influxdata.com/influxdata-archive.key \
+    && gpg --show-keys --with-fingerprint --with-colons ./influxdata-archive.key 2>&1 | grep -q '^fpr:\+24C975CBA61A024EE1B631787C3D57159FC2F927:$' && cat influxdata-archive.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/influxdata-archive.gpg > /dev/null \
+    && echo 'deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive.gpg] https://repos.influxdata.com/debian stable main' | tee /etc/apt/sources.list.d/influxdata.list \
+    && apt-get -y update && apt-get -y install influxdb2 \
     # Install Grafana
-    && wget https://dl.grafana.com/oss/release/grafana_${GRAFANA_VERSION}_${ARCH}.deb \
-    && dpkg -i grafana_${GRAFANA_VERSION}_${ARCH}.deb \
-    && rm grafana_${GRAFANA_VERSION}_${ARCH}.deb \
+    && mkdir -p /etc/apt/keyrings/ \
+    && wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | tee /etc/apt/keyrings/grafana.gpg > /dev/null \
+    && echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | tee -a /etc/apt/sources.list.d/grafana.list \
+    && apt-get -y update && apt-get -y install grafana \
     # Cleanup
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

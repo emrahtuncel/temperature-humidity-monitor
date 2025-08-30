@@ -4,14 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"syscall"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	ptypes "github.com/golang/protobuf/ptypes"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	proto "google.golang.org/protobuf/proto"
 	yaml "gopkg.in/yaml.v2"
@@ -26,6 +24,8 @@ type Config struct {
 	MqttQos         int
 	InfluxdbAddress string
 	InfluxdbToken   string
+	DbOrganization  string
+	DbBucket        string
 }
 
 var channel chan *SensorData
@@ -51,7 +51,7 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 func parseConfig() {
 
 	filename, _ := filepath.Abs("conf/config.yaml")
-	yamlFile, err := ioutil.ReadFile(filename)
+	yamlFile, err := os.ReadFile(filename)
 
 	if err != nil {
 		panic(err)
@@ -126,19 +126,22 @@ func dataConsumer(dbClient influxdb2.Client) {
 
 	for sensorData := range channel {
 
-		dateTime, _ := ptypes.Timestamp(sensorData.GetMeasurementTime())
+		dateTime := sensorData.GetMeasurementTime().AsTime()
 		dateTimeString := dateTime.Local().Format("02/01/2006 15:04:05")
 
 		fmt.Printf("Device: %s, Time: %s, Temperature: %.1f, Humidity: %.1f\n",
 			sensorData.GetDeviceId(), dateTimeString, sensorData.GetTemperature(), sensorData.GetHumidity())
 
-		writeAPI := dbClient.WriteAPIBlocking("root", "default")
+		writeAPI := dbClient.WriteAPIBlocking(config.DbOrganization, config.DbBucket)
 		// create point using full params constructor
 		p := influxdb2.NewPoint("humidity-temperature",
 			map[string]string{"device": sensorData.GetDeviceId()},
 			map[string]interface{}{"humidity": sensorData.GetHumidity(), "temperature": sensorData.GetTemperature()},
 			dateTime)
 		// write point immediately
-		writeAPI.WritePoint(context.Background(), p)
+		err := writeAPI.WritePoint(context.Background(), p)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }

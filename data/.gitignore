@@ -1,0 +1,6 @@
+grafana/**
+!grafana/readme.txt
+influxdb/**
+!influxdb/readme.txt
+mosquitto/**
+!mosquitto/readme.txt
